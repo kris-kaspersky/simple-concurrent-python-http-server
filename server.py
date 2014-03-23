@@ -42,4 +42,8 @@ if __name__ == '__main__':
 	# if want to test the sequential http server
 	# server_class = HTTPServer
 	my_server = server_class((HOST_NAME, PORT_NUMBER), MyHandler)
-	my_server.serve_forever()
+	try:
+		my_server.serve_forever()
+	except KeyboardInterrupt:
+		pass
+	my_server.serve_close()

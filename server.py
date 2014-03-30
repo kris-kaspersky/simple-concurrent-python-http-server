@@ -51,14 +51,16 @@ class MyHandler(BaseHTTPRequestHandler):
 
 	def do_GET(self):
 		# file_dir = 'C:/Dropbox/Courses/Concurrent Programming/project/webserver/files/'
-		f = open(file_dir + self.path)
+		# f = open(file_dir + self.path)
 		self.send_response(200)
 		self.send_header("Content-type", "text-html")
 		self.end_headers()
 		# self.wfile.write("Entered GET request handler --- ")
-		self.wfile.write(f.read())
+		# self.wfile.write(f.read())
+		query = self.path.split('-')
+		self.wfile.write(flights_schedule[query[0]][query[1]])
 		time.sleep(1)
-		self.wfile.write("Sending response!")
+		# self.wfile.write("Sending response!")
 		# create log
 		mylog = eachLog()
 		mylog.ipaddress = self.client_address[0]
@@ -92,4 +94,4 @@ if __name__ == '__main__':
 			print 'log:'+'  '+i.ipaddress+'  '+i.dateandtime+'  '+i.requiredfile
 			#print 'log:'+'  '+i.ipaddress+'  '+i.requiredfile+'\t\n'
 	my_server.server_close()
-	print flights_schedule['UA001']['Mon']
+	# print flights_schedule['UA001']['Mon']

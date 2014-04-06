@@ -10,24 +10,36 @@ file_dir = os.getcwd() + '/serverfiles/'
 log = []
 logLock = threading.RLock()
 flights_schedule = {}
+flights_schedule_lock = threading.RLock()
 
 # convert the file into filght dict
+class Flight():
+	def __init__(self, flightID):
+		self.flightID = flightID
+		self.schedule_info = {}
+
+	def add_scedule_info(self, date, time, ticket):
+		self.info = [time, ticket]
+		self.schedule_info[date] = self.info
+
+	def add_reservation(self, date):
+		if self.schedule_info[date][1] >= 1:
+			self.schedule_info[date][1] -= 1
+			return 'Reserve Success'
+		else:
+			return 'Not Enough Tickets'
+
 def get_flights(filename):
 	file_in = open(file_dir + filename)
 	flights = {}
-	flight_day = []
-	flight_time = []
-	flight_name = []
 	for line in file_in:
-		line = line.strip('\n')
+		line = line.strip('\n\r')
 		line_list = line.split(',')
-		flight_name.append(line_list[0])
-		flight_day.append(line_list[1])
-		flight_time.append(line_list[2])
-	for i in range(0, len(flight_name)):
-		flights[flight_name[i]] = {}
-	for i in range(0, len(flight_name)):
-		flights[flight_name[i]][flight_day[i]] = flight_time[i]
+		if not line_list[0] in flights:
+			flights[line_list[0]] = Flight(line_list[0])
+			flights[line_list[0]].add_scedule_info(line_list[1], line_list[2], 30)
+		else:
+			flights[line_list[0]].add_scedule_info(line_list[1], line_list[2], 30)
 	return flights
 
 # concurrent server
@@ -58,8 +70,24 @@ class MyHandler(BaseHTTPRequestHandler):
 		# self.wfile.write("Entered GET request handler --- ")
 		# self.wfile.write(f.read())
 		query = self.path.split('-')
-		self.wfile.write(flights_schedule[query[0]][query[1]])
-		time.sleep(1)
+		# self.wfile.write(flights_schedule[query[0]].schedule[query[1]])
+		if query[0] == 'Query':
+			flights_schedule_lock.acquire()
+			try:
+				flight_info = flights_schedule[query[1]].schedule_info[query[2]]
+				res = ' '
+				self.wfile.write(flight_info)
+			finally:
+				flights_schedule_lock.release()
+
+		if query[0] == 'Order':
+			flights_schedule_lock.acquire()
+			try:
+				res = flights_schedule[query[1]].add_reservation(query[2])
+				# flight_info = flights_schedule[query[1]].schedule_info[query[2]]
+				self.wfile.write(res)
+			finally:
+				flights_schedule_lock.release()
 		# self.wfile.write("Sending response!")
 		# create log
 		mylog = eachLog()

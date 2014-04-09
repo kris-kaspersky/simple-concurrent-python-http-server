@@ -37,3 +37,5 @@ if __name__ == '__main__':
 	print flights['UA002'].add_reservation('Mon')
 	print flights['UA002'].add_reservation('Mon')
 	print flights['UA002'].schedule_info['Mon']
+	for key in flights.keys():
+		print key + " " + str(flights[key].schedule_info)

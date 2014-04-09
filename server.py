@@ -72,20 +72,17 @@ class MyHandler(BaseHTTPRequestHandler):
 		query = self.path.split('-')
 		# self.wfile.write(flights_schedule[query[0]].schedule[query[1]])
 		if query[0] == 'Query':
-			flights_schedule_lock.acquire()
-			try:
-				flight_info = flights_schedule[query[1]].schedule_info[query[2]]
-				res = ' '
-				self.wfile.write(flight_info)
-			finally:
-				flights_schedule_lock.release()
-
+			flight_info = flights_schedule[query[1]].schedule_info[query[2]]
+			res = ' '
+			self.wfile.write(flight_info)
+			time.sleep(1)
 		if query[0] == 'Order':
 			flights_schedule_lock.acquire()
 			try:
 				res = flights_schedule[query[1]].add_reservation(query[2])
 				# flight_info = flights_schedule[query[1]].schedule_info[query[2]]
 				self.wfile.write(res)
+				time.sleep(1)
 			finally:
 				flights_schedule_lock.release()
 		# self.wfile.write("Sending response!")
@@ -109,6 +106,10 @@ if __name__ == '__main__':
 	# test()
 	# get flight dict
 	flights_schedule = get_flights('flights.csv')
+	# print the schedule info
+	for key in flights_schedule.keys():
+		print key + " " + str(flights_schedule[key].schedule_info)
+	print '\n'
 	server_class = ThreadedHTTPServer
 	# if want to test the sequential http server
 	# server_class = HTTPServer
@@ -121,5 +122,8 @@ if __name__ == '__main__':
 		#print i.ipaddress
 			print 'log:'+'  '+i.ipaddress+'  '+i.dateandtime+'  '+i.requiredfile
 			#print 'log:'+'  '+i.ipaddress+'  '+i.requiredfile+'\t\n'
+	print '\n'
+	for key in flights_schedule.keys():
+		print key + " " + str(flights_schedule[key].schedule_info)
 	my_server.server_close()
 	# print flights_schedule['UA001']['Mon']

@@ -75,14 +75,14 @@ class MyHandler(BaseHTTPRequestHandler):
 			flight_info = flights_schedule[query[1]].schedule_info[query[2]]
 			res = ' '
 			self.wfile.write(flight_info)
-			time.sleep(1)
+			time.sleep(0.3)
 		if query[0] == 'Order':
 			flights_schedule_lock.acquire()
 			try:
 				res = flights_schedule[query[1]].add_reservation(query[2])
 				# flight_info = flights_schedule[query[1]].schedule_info[query[2]]
 				self.wfile.write(res)
-				time.sleep(1)
+				time.sleep(0.3)
 			finally:
 				flights_schedule_lock.release()
 		# self.wfile.write("Sending response!")
@@ -95,12 +95,6 @@ class MyHandler(BaseHTTPRequestHandler):
 		logLock.acquire()
 		log.append(mylog)
 		logLock.release()
-                
-
-# test(HandlerClass=<class BaseHTTPServer.BaseHTTPRequestHandler>, ServerClass=<class BaseHTTPServer.HTTPServer>)
-# Test the HTTP request handler class. This runs an HTTP server on port 8000
-# def test(HandlerClass = SlowHandler, ServerClass = ThreadedHTTPServer):
-#       _test(HandlerClass, ServerClass)
 
 if __name__ == '__main__':
 	# test()
